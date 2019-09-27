@@ -1,0 +1,885 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8" />
+    <title>Phaser - part 10</title>
+    <script src="phaser.min.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<script type="text/javascript">
+
+var game = new Phaser.Game(1200, 800, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+var bout,tournerdé=-1,back;
+var N,Rou,J,V,B,N2,J2,B2,V2,N; 
+var p1j,p1b,p2v,p2j,p2r,p2b,p1v,p1n;
+var prisonR1=true,prisonV1=true,prisonB1=true,prisonJ1=true,prisonR2=true,prisonV2=true,prisonB2=true,prisonJ2=true;
+var tour=1,nbPrison1=4,nbPrison2=4;  
+function preload() {
+
+ game.time.desiredFps=60;
+ game.time.advancedTiming = true;
+        game.time.slowMotion = 1.0;   
+         game.load.image('pr','pris.png');
+      game.load.image('jaune','jaunee.png');
+      game.load.image('rouge','ami1.png');
+      game.load.image('vert','vert.png');
+      game.load.image('bleu','bleu1.png');
+      game.load.image('noir','noir.png');
+      game.load.image('mrV','mrV.png');
+      game.load.image('mrJ','mrJ2.png');
+      game.load.image('mrR','ami.png');
+      game.load.image('mrN','mrN1.png');
+      game.load.image('mrB','mrB1.png');
+      game.load.image('p1r','Joueur1/p1r.png'); //pion1 rouge
+      game.load.image('p1v','Joueur1/p1v.png'); //pion1 vert
+      game.load.image('p1j','Joueur1/p1j.png'); //pion1 jaune
+      game.load.image('p1b','Joueur1/p1b.png'); //pion1 bleu
+       game.load.image('p1n','Joueur1/p1n.png'); //pion1 noir
+      
+      game.load.image('p2r','Joueur2/p2r.png'); //pion2 rouge
+      game.load.image('p2v','Joueur2/p2v.png'); //pion2 vert
+      game.load.image('p2j','Joueur2/p2j.png'); //pion2 jaune
+      game.load.image('p2b','Joueur2/p2b.png'); //pion2 bleu
+
+      game.load.image('V','V.png');
+
+      game.load.image('dé','déé.png');
+      game.load.image('back','back.png');
+      //les dès jaunes
+      game.load.image('j6','Jaune/j6.png');
+      game.load.image('j5','Jaune/j5.png');
+      game.load.image('j4','Jaune/j4.png');
+      game.load.image('j3','Jaune/j3.png');
+      game.load.image('j1','Jaune/j1.png');
+      game.load.image('j2','Jaune/j2.png');
+
+       //les dès rouges
+      game.load.image('r6','Rouge/r6.png');
+      game.load.image('r5','Rouge/r5.png');
+      game.load.image('r4','Rouge/r4.png');
+      game.load.image('r3','Rouge/r3.png');
+      game.load.image('r1','Rouge/r1.png');
+      game.load.image('r2','Rouge/r2.png');
+
+       //les dès Bleus
+      game.load.image('b6','Bleu/b6.png');
+      game.load.image('b5','Bleu/b5.png');
+      game.load.image('b4','Bleu/b4.png');
+      game.load.image('b3','Bleu/b3.png');
+      game.load.image('b1','Bleu/b1.png');
+      game.load.image('b2','Bleu/b2.png');
+
+      //les dès verts
+      game.load.image('v6','Vert/v6.png');
+      game.load.image('v5','Vert/v5.png');
+      game.load.image('v4','Vert/v4.png');
+      game.load.image('v3','Vert/v3.png');
+      game.load.image('v1','Vert/v1.png');
+      game.load.image('v2','Vert/v2.png');
+
+            //les dès noirs
+      game.load.image('n6','Noir/n6.png');
+      game.load.image('n5','Noir/n5.png');
+      game.load.image('n4','Noir/n4.png');
+      game.load.image('n3','Noir/n3.png');
+      game.load.image('n1','Noir/n1.png');
+      game.load.image('n2','Noir/n2.png');
+
+
+
+}
+var player;
+var group;
+var cursors,b1=-1,b2=-1,b3=-1,b4=-1,prison;
+var bj1=-1,bj2=-1,bj3=-1,bj4=-1;
+
+var apples;
+var score = 0;
+var Rii;   var wall1; var rouge=[],vert=[],bleu=[],jaune=[],noir=[];
+var posInit=545;
+var i=1,dé,posdé,rect,text;
+ var pr1,pr2,pr3,gain1=0,gain2=0,score1,score2;
+function create() {
+      game.physics.startSystem(Phaser.Physics.ARCADE);
+    
+                     
+                       score1 = game.add.text(50, 500, '', { fill: '#ffffff' });
+                       score2 = game.add.text(900, 500, '', { fill: '#ffffff' });
+                       text = game.add.text(530, 40, '', { fill: '#ffffff' });
+                       prison = game.add.text(50, 40, '', { fill: '#ffffff' });
+                       pr1 = game.add.text(20, 130, '', { fill: '#ffffff' });
+                       pr2 = game.add.text(20, 265, '', { fill: '#ffffff' });
+                      
+
+
+                         prison.text = "Prison ";
+                          pr1.text = "joueur 1 ";
+                          pr2.text = "joueur 2 ";
+                          score1.text="Objectif joueur1 : 0";
+                          score2.text="Objectif joueur2 : 0";
+
+                         
+
+                    var pat=101;
+                     game.add.sprite(400,100,'mrV').scale.setTo(1,1.01); 
+                     game.add.sprite(480,100,'mrJ').scale.setTo(1,1.01); 
+                    // game.add.sprite(560,100,'mrN').scale.setTo(1,1.01);
+                     game.add.sprite(640,100,'mrB').scale.setTo(1,1.01); 
+                     game.add.sprite(720,100,'mrR').scale.setTo(1,1.01); 
+                     game.add.sprite(12,180,'pr').scale.setTo(0.8,0.6); 
+                    game.add.sprite(12,310,'pr').scale.setTo(0.8,0.6); ; 
+
+               
+                
+                 //joueur rouge1
+                 p1r= game.add.sprite(20,190,'p1r');  //game.physics.enable(p1r, Phaser.Physics.ARCADE);
+                 //joueur vert1
+                 p1v=game.add.sprite(70,190,'p1v');  //game.physics.enable(p1v, Phaser.Physics.ARCADE);
+                 //joueur jaune1
+                 p1j=game.add.sprite(120,190,'p1j');  //game.physics.enable(p1j, Phaser.Physics.ARCADE);
+                //joueur bleu1
+                 p1b=game.add.sprite(160,190,'p1b'); //game.physics.enable(p1b, Phaser.Physics.ARCADE);
+                  //p1b=game.add.sprite(562,190,'p1n');   
+                  //joueur rouge2
+                 p2r= game.add.sprite(20,320,'p2r');  //game.physics.enable(p2r, Phaser.Physics.ARCADE);
+                 //joueur vert2
+                 p2v=game.add.sprite(70,320,'p2v'); 
+                 //joueur jaune2
+                 p2j=game.add.sprite(120,320,'p2j'); 
+                 p2b=game.add.sprite(160,320,'p2b'); 
+               
+
+
+        dé = game.add.button(590, 340, 'dé', actionOnClick, this, 2, 1, 0);
+        dé.anchor.setTo(0.5, 0.5);
+
+
+
+
+
+               for(var i=0; i<20; i++)
+               {                            
+
+
+                      vert[i]=game.add.sprite(405,pat,'vert').scale.setTo(1,0.5);   
+                      jaune[i]=game.add.sprite(485,pat,'jaune').scale.setTo(1,0.5); 
+                      bleu[i]=game.add.sprite(645,pat,'bleu').scale.setTo(1,0.5); ; 
+                      rouge[i]=game.add.sprite(725,pat,'rouge').scale.setTo(1,0.5); 
+
+                      
+
+                      pat+=24;
+
+                 
+
+               }
+
+                p1r.animations.add('runR');   
+                 p1r.animations.play('runR', 12, true);    
+                 p1r.inputEnabled = true; 
+                 p1r.events.onInputDown.add(listenerR1, this);
+               
+                 
+                 p1v.animations.add('runV');
+                 p1v.animations.play('runV', 15, true);
+                 p1v.inputEnabled=true;
+                 p1v.events.onInputDown.add(listenerV1, this);
+                
+
+                 p1j.animations.add('runJ');
+                 p1j.animations.play('runJ', 15, true);
+                 p1j.inputEnabled=true;
+                 p1j.events.onInputDown.add(listenerJ1, this);
+
+                  p1b.animations.add('runB');
+                 p1b.animations.play('runB', 15, true);
+                 p1b.inputEnabled=true;
+                 p1b.events.onInputDown.add(listenerB1, this);
+
+                 //joueur2
+                 p2r.animations.add('runR2');
+                 p2r.animations.play('runR2', 15, true);    
+                 p2r.inputEnabled = true; 
+                 p2r.events.onInputDown.add(listenerR2, this);
+
+                  p2v.animations.add('runV2');
+                 p2v.animations.play('runV2', 15, true);
+                 p2v.inputEnabled=true;
+                 p2v.events.onInputDown.add(listenerV2, this);
+
+                  p2j.animations.add('runJ2');
+                 p2j.animations.play('runJ2', 15, true);
+                 p2j.inputEnabled=true;
+                 p2j.events.onInputDown.add(listenerJ2, this);
+
+                  p2b.animations.add('runB2');
+                 p2b.animations.play('runB2',15, true);
+                 p2b.inputEnabled=true;
+                 p2b.events.onInputDown.add(listenerB2, this);
+                
+             
+game.world.bringToTop(p1r);
+game.world.bringToTop(p1v);
+game.world.bringToTop(p1j);
+game.world.bringToTop(p1b);
+
+game.world.bringToTop(p2r);
+game.world.bringToTop(p2v);
+game.world.bringToTop(p2j);
+game.world.bringToTop(p2b);
+
+
+
+   
+}
+
+function update() {
+p1r.frame=5; p1v.frame=5; p1b.frame=5; p1j.frame=5; 
+
+
+                     if(tour==1)
+                         text.text = "Joueur" + "   1";
+                       else 
+                        text.text = "Joueur" + "   2";
+                      if(gain1==4 || gain2==4 )
+                      {
+                        tour=0;    
+                      if(gain2==4)  text.text = "Félicitations joueur 2";
+                        else  text.text = "Félicitations joueur 1";
+                      }
+
+                 game.debug.body(p1r);
+                 //joueur1
+                 
+               
+                 
+                score1.text="Objectif joueur 1 : "+gain1;
+                score2.text="Objectif joueur 2 : "+gain2;
+
+                
+
+
+               
+//console.log("gain2="+gain2+"gain1="+gain1);          
+
+                 
+
+                 
+
+
+
+   if(tournerdé==1)
+   {   if (dé.angle<posdé+170)
+       {  dé.angle+=5;  }
+     
+       else 
+      {   tournerdé=-1; 
+
+     
+          dé.angle=0;   
+          //ajouter les dès de couleurs des résultats
+          if(tour==1)
+         {
+          game.add.sprite(1080,100,"b"+B.toString()).scale.setTo(0.75,0.75);
+          game.add.sprite(1080,200,"v"+V.toString()).scale.setTo(0.75,0.75);
+          game.add.sprite(1080,300,"r"+Rou.toString()).scale.setTo(0.75,0.75);
+          game.add.sprite(1080,400,"j"+J.toString()).scale.setTo(0.75,0.75);
+
+         }
+         else 
+         {
+          game.add.sprite(1080,100,"b"+B2.toString()).scale.setTo(0.75,0.75);
+          game.add.sprite(1080,200,"v"+V2.toString()).scale.setTo(0.75,0.75);
+          game.add.sprite(1080,300,"r"+Rou2.toString()).scale.setTo(0.75,0.75);
+          game.add.sprite(1080,400,"j"+J2.toString()).scale.setTo(0.75,0.75);
+
+         }
+//console.log("\npasser tour de gain1="+(4-(gain1+nbPrison1))+"\npasser tour de gain2="+(4-(gain2+nbPrison2)));
+//console.log("\nnbPrison1="+nbPrison1+"\nnbPrison2="+nbPrison2);
+        if( (tour==1 && prisonR1==true && prisonJ1==true && prisonV1==true && prisonB1==true && Rou!=6 && V!=6 && B!=6 && J!=6) || ((4-(gain1+nbPrison1)==0 && (tour==1 ) ) ))
+         tour=-1;
+         else
+         {
+            if((tour==-1 && prisonR2==true && prisonJ2==true && prisonV2==true && prisonB2==true && Rou2!=6 && V2!=6 && B2!=6 && J2!=6) || 
+              (4-(gain2+nbPrison2)==0 && (tour==-1) )      )
+              
+             tour=1;
+         } 
+      
+         
+      }
+   }
+
+ 
+  if(tour==1)
+  {
+    if(b1==1 && tour==1)
+    { 
+       if (p1r.y >Rii- Rou*24 && p1r.y>90)
+      {
+        p1r.y -= 0.8;
+
+
+      }
+        else 
+       { 
+         console.log("surpriseR1= "+(posInit-(surpriseR1)*24)+"posR1= "+p1r.y); 
+         var posSurp=posInit-(surpriseR1)*24; 
+         var x=posSurp-p1r.y;
+        if(x>0 && x<5) p1r.y=posInit;
+        
+
+        if(p1r.y<=90 && prisonR1==false) gain1++;
+
+        if(p1r.y==p2r.y && prisonR2==false && p1r.y>90)       
+         { 
+                  p2r.kill();  prisonR2=true;
+                  p2r= game.add.sprite(20,320,'p2r'); nbPrison2++;
+             //joueur2
+                 p2r.animations.add('runR2');
+                 p2r.animations.play('runR2', 15, true);    
+                 p2r.inputEnabled = true; 
+                 p2r.events.onInputDown.add(listenerR2, this);
+
+
+        }
+                 b1=-1;
+                 tour=-1;              
+
+       } 
+    }
+   
+   if(b2==1 && tour==1)
+    { 
+       if (p1v.y >Vii- V*24  && p1v.y>90)
+      {
+        p1v.y -= 0.8;
+
+
+      }
+       else 
+       {  
+           console.log("surpriseR1= "+(posInit-(surpriseR1)*24)+"posR1= "+p1v.y); 
+         var posSurp=posInit-(surpriseR1)*24; 
+         var x=posSurp-p1v.y;
+        if(x>0 && x<5) p1v.y=posInit;
+
+               if(p1v.y<=90 && prisonV1==false) gain1++;
+         if(p1v.y==p2v.y && prisonV2==false && p1v.y>90)
+                    {
+                        p2v.kill(); nbPrison2++; prisonV2=true;
+                        p2v=game.add.sprite(70,320,'p2v');
+
+                  p2v.animations.add('runV2');
+                 p2v.animations.play('runV2', 15, true);
+                 p2v.inputEnabled=true;
+                 p2v.events.onInputDown.add(listenerV2, this);
+                     }
+
+                  b2=-1;
+                 tour=-1;              
+
+       } 
+    }
+
+     if(b3==1 && tour==1)
+    { 
+       if (p1j.y >Jii- J*24 && p1j.y>90)
+      {
+        p1j.y -= 0.8;
+
+
+      }
+        else 
+       {    
+        console.log("surpriseR1= "+(posInit-(surpriseR1)*24)+"posR1= "+p1j.y); 
+         var posSurp=posInit-(surpriseR1)*24; 
+         var x=posSurp-p1j.y;
+        if(x>0 && x<5) p1j.y=posInit;
+
+
+        if(p1j.y<=90 && prisonJ1==false) gain1++;
+
+                  if(p1j.y==p2j.y && prisonJ2==false && p1j.y>90)
+                    {
+                       p2j.kill();  prisonJ2=true; nbPrison2++;
+                       p2j=game.add.sprite(120,320,'p2j');
+                        p2j.animations.add('runJ2');
+                 p2j.animations.play('runJ2', 15, true);
+                 p2j.inputEnabled=true;
+                 p2j.events.onInputDown.add(listenerJ2, this);
+                     }
+
+                      b3=-1;
+                      tour=-1;              
+
+       } 
+    }
+
+     if(b4==1 && tour==1)
+    { 
+       if (p1b.y >Bii- B*24 && p1b.y>90)
+      {
+        p1b.y -= 0.8;
+
+
+      }
+        else 
+       {    
+
+           console.log("surpriseR1= "+(posInit-(surpriseR1)*24)+"posR1= "+p1b.y); 
+         var posSurp=posInit-(surpriseR1)*24; 
+         var x=posSurp-p1b.y;
+        if(x>0 && x<5) p1b.y=posInit;  
+               if(p1b.y<=90 && prisonB1==false) gain1++;
+
+                   if(p1b.y==p2b.y &&  prisonB2==false && p1b.y>90)
+                         {
+                           p2b.kill(); prisonB2=true;   nbPrison2++;
+                       p2b=game.add.sprite(160,320,'p2b');
+
+                        p2b.animations.add('runB2');
+                 p2b.animations.play('runB2',15, true);
+                 p2b.inputEnabled=true;
+                 p2b.events.onInputDown.add(listenerB2, this);
+                     }
+                    b4=-1;
+                    tour=-1;              
+  
+       } 
+    }
+  } 
+    
+
+
+
+    if(bj1==1 && tour==-1)
+    { 
+       if (p2r.y >Rii2- Rou2*24 && p2r.y>90)
+      {   
+        p2r.y -= 0.8;
+
+
+      }
+        else 
+       {   
+          console.log("surpriseR1= "+(posInit-(surpriseR1)*24)+"posR1= "+p2r.y); 
+         var posSurp=posInit-(surpriseR1)*24; 
+         var x=posSurp-p2r.y;
+        if(x>0 && x<5) p2r.y=posInit;
+
+
+             if(p2r.y<=90 && prisonR2==false) gain2++;
+
+        if(p1r.y==p2r.y && prisonR1==false && p1r.y>90) 
+        {
+               p1r.kill(); prisonR1=true;  nbPrison1++;
+          p1r= game.add.sprite(20,190,'p1r');
+           p1r.animations.add('runR');
+                 p1r.animations.play('runR', 12, true);    
+                 p1r.inputEnabled = true; 
+                 p1r.events.onInputDown.add(listenerR1, this); 
+
+
+
+           
+
+
+
+
+        } 
+                 bj1=-1;
+                 tour=1;              
+
+       } 
+    }
+   
+   if(bj2==1 && tour==-1)
+    { 
+       if (p2v.y >Vii2- V2*24  && p2v.y>90)
+      {
+        p2v.y -= 0.8;
+
+
+      }
+       else 
+       {    
+
+       console.log("surpriseR1= "+(posInit-(surpriseR1)*24)+"posR1= "+p2v.y); 
+         var posSurp=posInit-(surpriseR1)*24; 
+         var x=posSurp-p2v.y;
+        if(x>0 && x<5) p2v.y=posInit; 
+
+           if(p2v.y<=90 && prisonV2==false) gain2++;
+               if(p1v.y==p2v.y && prisonV1==false && p1v.y>90)
+                    {
+                       p1v.kill(); prisonV1=true; nbPrison1++;
+                       p1v=game.add.sprite(70,190,'p1v');
+                        p1v.animations.add('runV');
+                 p1v.animations.play('runV', 15, true);
+                 p1v.inputEnabled=true;
+                 p1v.events.onInputDown.add(listenerV1, this);
+
+
+                      
+                     }
+
+               bj2=-1;
+                 tour=1;              
+
+       } 
+    }
+
+     if(bj3==1 && tour==-1)
+    { 
+       if (p2j.y >Jii2- J2*24 && p2j.y>90)
+      {
+        p2j.y -= 0.8;
+
+
+      }
+        else 
+       {    
+           console.log("surpriseR1= "+(posInit-(surpriseR1)*24)+"posR1= "+p2j.y); 
+         var posSurp=posInit-(surpriseR1)*24; 
+         var x=posSurp-p2j.y;
+        if(x>0 && x<5) p2j.y=posInit;
+
+
+        if(p2j.y<=90 && prisonJ2==false) gain2++;
+             if(p1j.y==p2j.y && prisonJ1==false && p1j.y>90)
+                    {
+            
+
+                       p1j.kill(); prisonJ1=true; nbPrison1++;
+                       p1j=game.add.sprite(120,190,'p1j');
+
+                 p1j.animations.add('runJ');
+                 p1j.animations.play('runJ', 15, true);
+                 p1j.inputEnabled=true;
+                 p1j.events.onInputDown.add(listenerJ1, this);
+                       
+                     } 
+                bj3=-1;
+                 tour=1;              
+
+       } 
+    }
+
+     if(bj4==1 && tour==-1)
+    { 
+       if (p2b.y >Bii2- B2*24 && p2b.y>90)
+      {
+        p2b.y -= 0.8;
+
+
+      }
+        else 
+       {     
+         console.log("surpriseR1= "+(posInit-(surpriseR1)*24)+"posR1= "+p2b.y); 
+         var posSurp=posInit-(surpriseR1)*24; 
+         var x=posSurp-p2b.y;
+        if(x>0 && x<5) p2b.y=posInit;
+
+
+                 if(p2b.y<=90 && prisonB2==false) gain2++;
+                     if(p1b.y==p2b.y &&  prisonB1==false && p2b.y>90)
+                         {
+
+                           p1b.kill(); prisonB1=true; nbPrison1++;
+                         p1b=game.add.sprite(160,190,'p1b');
+                            p1b.animations.add('runB');
+                 p1b.animations.play('runB', 15, true);
+                 p1b.inputEnabled=true;
+                 p1b.events.onInputDown.add(listenerB1, this);
+                      
+                     }
+
+                  bj4=-1;
+                 tour=1;              
+
+       } 
+    }
+
+}
+var Vii,Jii,Bii,Vii2,Bii2,Jii2,Rou2,surpriseR1=0;
+function actionOnClick () {
+
+
+if(tournerdé==-1) {tournerdé=1;  posdé=dé.angle; }
+
+   surpriseR1=game.rnd.integerInRange(1, 15);
+  
+
+
+
+
+
+     Rou=game.rnd.integerInRange(1, 6);
+    //  N=game.rnd.integerInRange(1, 6); 
+      J=game.rnd.integerInRange(1, 6); 
+      V=game.rnd.integerInRange(1, 6); 
+      B=game.rnd.integerInRange(1, 6); 
+
+      Rou2=game.rnd.integerInRange(1, 6);
+      //N2=game.rnd.integerInRange(1, 6); 
+      J2=game.rnd.integerInRange(1, 6); 
+      V2=game.rnd.integerInRange(1, 6); 
+      B2=game.rnd.integerInRange(1, 6); 
+
+if(tour==1)
+{   
+
+     if(Rou==6 )
+      {
+        if(prisonR1==true)
+        {
+          p1r.kill();
+          p1r= game.add.sprite(730,posInit,'p1r'); 
+          p1r.animations.add('runR');
+                 p1r.animations.play('runR', 12, true);    
+                 p1r.inputEnabled = true; 
+                 p1r.events.onInputDown.add(listenerR1, this);
+          nbPrison1--;
+        }
+         prisonR1=false;   
+      }
+
+       if(J==6 )
+      {
+        if(prisonJ1==true)
+        {
+          p1j.kill();
+         p1j= game.add.sprite(490,posInit,'p1j'); 
+          p1j.animations.add('runJ');
+                 p1j.animations.play('runJ', 15, true);
+                 p1j.inputEnabled=true;
+                 p1j.events.onInputDown.add(listenerJ1, this);
+          
+          nbPrison1--;
+        }
+        prisonJ1=false;  
+      }
+
+        if(V==6 )
+      {
+        if(prisonV1==true)
+        {
+          p1v.kill();
+         p1v= game.add.sprite(410,posInit,'p1v'); 
+            p1v.animations.add('runV');
+                 p1v.animations.play('runV', 15, true);
+                 p1v.inputEnabled=true;
+                 p1v.events.onInputDown.add(listenerV1, this);
+          nbPrison1--;
+        }
+        prisonV1=false;  
+      }
+
+
+        if(B==6 )
+      {
+        if(prisonB1==true)
+        {
+          p1b.kill();
+         p1b= game.add.sprite(650,posInit,'p1b'); 
+          p1b.animations.add('runB');
+                 p1b.animations.play('runB', 15, true);
+                 p1b.inputEnabled=true;
+                 p1b.events.onInputDown.add(listenerB1, this);
+          nbPrison1--;        
+        }
+        prisonB1=false; 
+      }
+
+  
+      if(prisonR1==false)
+        Rii=p1r.y; 
+      else 
+         Rii=posInit;
+      
+
+       if(prisonV1==false)
+        Vii=p1v.y; 
+        else 
+         Vii=posInit;
+
+        if(prisonJ1==false)
+          Jii=p1j.y;    
+            else 
+         Jii=posInit;
+
+       if(prisonB1==false)
+        Bii=p1b.y;        
+            else 
+         Bii=posInit;
+
+   
+     
+ 
+      
+     
+}
+
+else
+{
+
+                 
+                
+
+                  
+
+   if(Rou2==6 )
+      {
+        if(prisonR2==true)
+        {
+          p2r.kill();
+          p2r= game.add.sprite(755,posInit,'p2r'); 
+          p2r.animations.add('runR2');
+                 p2r.animations.play('runR2', 15, true);    
+                 p2r.inputEnabled = true; 
+                 p2r.events.onInputDown.add(listenerR2, this);
+
+          nbPrison2--;
+        }
+        prisonR2=false;   
+      }
+
+       if(J2==6 )
+      {
+        if(prisonJ2==true)
+        {
+          p2j.kill();
+         p2j= game.add.sprite(510,posInit,'p2j'); 
+            p2j.animations.add('runJ2');
+                 p2j.animations.play('runJ2', 15, true);
+                 p2j.inputEnabled=true;
+                 p2j.events.onInputDown.add(listenerJ2, this);
+          nbPrison2--;
+        }
+        prisonJ2=false;   
+      }
+
+        if(V2==6 )
+      {
+        if(prisonV2==true)
+        {
+          p2v.kill();
+         p2v= game.add.sprite(430,posInit,'p2v'); 
+         p2v.animations.add('runV2');
+                 p2v.animations.play('runV2', 15, true);
+                 p2v.inputEnabled=true;
+                 p2v.events.onInputDown.add(listenerV2, this);
+
+          nbPrison2--;
+        }
+        prisonV2=false; 
+      }
+
+
+        if(B2==6 )
+      {
+        if(prisonB2==true)
+        {
+          p2b.kill();
+         p2b= game.add.sprite(670,posInit,'p2b'); 
+         p2b.animations.add('runB2');
+                 p2b.animations.play('runB2',15, true);
+                 p2b.inputEnabled=true;
+                 p2b.events.onInputDown.add(listenerB2, this);
+          nbPrison2--;
+        }
+        prisonB2=false; 
+      }
+
+
+
+      if(prisonR2==false)
+        Rii2=p2r.y; 
+      else 
+         Rii2=posInit;
+      
+
+       if(prisonV2==false)
+        Vii2=p2v.y; 
+        else 
+         Vii2=posInit;
+
+        if(prisonJ2==false)
+          Jii2=p2j.y;    
+            else 
+         Jii2=posInit;
+
+       if(prisonB2==false)
+        Bii2=p2b.y;        
+            else 
+         Bii2=posInit;
+
+}
+    
+}
+
+
+       
+
+function Reculer(p1r,rouge)
+{ for (var j=0; j<2; j++)
+  {
+    p1r.y+=0.5;
+  }
+  console.log("heloo");
+}
+      
+
+
+function listenerR1 () {
+     if(tour==1) b1=1;
+
+
+}
+
+function listenerV1 () {
+     if(tour==1) b2=1;
+
+}
+
+function listenerJ1() {
+     if(tour==1) b3=1;
+
+}
+
+function listenerB1() {
+   if(tour==1)   b4=1;
+
+}
+
+function listenerR2 () {
+  if(tour==-1)    bj1=1;
+
+
+}
+
+function listenerV2 () {
+    if(tour==-1)  bj2=1;
+
+}
+
+function listenerJ2() {
+   if(tour==-1)   bj3=1;
+
+}
+
+function listenerB2() {
+   if(tour==-1)   bj4=1;
+
+}
+</script>
+
+</body>
+</html>
